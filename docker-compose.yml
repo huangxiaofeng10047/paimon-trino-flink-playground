@@ -1,7 +1,6 @@
 version: "3"
 
 services:
-
   trino:
     image: trinodb/trino:427
     container_name: trino
@@ -32,7 +31,7 @@ services:
   mc:
     depends_on:
       - storage
-    image: minio/mc
+    image: minio/mc:RELEASE.2020-06-26T19-56-55Z
     container_name: mc
     networks:
       paimon-net:
@@ -52,21 +51,24 @@ services:
       /usr/bin/mc policy set public minio/warehouse;
       /usr/bin/mc policy set public minio/iceberg;
       tail -f /dev/null
-      " 
-  
+      "
+
   starrocks:
-    image: starrocks/allin1-ubuntu
+    image: starrocks/allin1-ubuntu:3.2.6
     container_name: starrocks
+    hostname: starrocks
     networks:
       paimon-net:
     ports:
       - 9030:9030
       - 8040:8040
       - 8030:8030
+      - 9060:9060
 
   # Flink Job Manager
   flink-jobmanager:
-    image: alexmerced/flink-iceberg:latest
+    # image: alexmerced/flink-iceberg:latest
+    image: flink-nginx-combo:latest
     ports:
       - "8081:8081"
     command: jobmanager
@@ -87,9 +89,12 @@ services:
       - "./paimon-flink-1.16-0.9.0.jar:/opt/flink/lib/paimon-flink-1.16-0.9.0.jar"
       - "./paimon-flink-action-0.9.0.jar:/opt/flink/lib/paimon-flink-action-0.9.0.jar"
       - "./paimon-s3-0.9.0.jar:/opt/flink/lib/paimon-s3-0.9.0.jar"
+      - "./flink-sql-connector-kafka-1.16.1.jar:/opt/flink/lib/flink-sql-connector-kafka-1.16.1.jar"
+      - "./flink-connector-starrocks-1.2.9_flink-1.16.jar:/opt/flink/lib/flink-connector-starrocks-1.2.9_flink-1.16.jar"
   # Flink Task Manager
   flink-taskmanager:
-    image: alexmerced/flink-iceberg:latest
+    #image: alexmerced/flink-iceberg:latest
+    image: flink-nginx-combo:latest
     depends_on:
       - flink-jobmanager
     command: taskmanager
@@ -112,7 +117,7 @@ services:
       - "./paimon-flink-1.16-0.9.0.jar:/opt/flink/lib/paimon-flink-1.16-0.9.0.jar"
       - "./paimon-flink-action-0.9.0.jar:/opt/flink/lib/paimon-flink-action-0.9.0.jar"
       - "./paimon-s3-0.9.0.jar:/opt/flink/lib/paimon-s3-0.9.0.jar"
-    
-
+      - "./flink-sql-connector-kafka-1.16.1.jar:/opt/flink/lib/flink-sql-connector-kafka-1.16.1.jar"
+      - "./flink-connector-starrocks-1.2.9_flink-1.16.jar:/opt/flink/lib/flink-connector-starrocks-1.2.9_flink-1.16.jar"
 networks:
-  paimon-net: 
+  paimon-net:

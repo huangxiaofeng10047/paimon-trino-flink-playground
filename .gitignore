@@ -1,1 +1,4 @@
 paimon/
+*.jar
+paimon-trino-427-0.8-20241120.000616-204-plugin.tar.gz
+
